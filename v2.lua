@@ -323,9 +323,9 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local TargetStrafe = {
-    Enabled = true, 
-    Speed = 40, -- Reduced speed for better circling
-    Radius = 3, -- Radius of the circle
+    Enabled = false,
+    Speed = 40,
+    Radius = 3,
     Height = 1
 }
 
@@ -345,7 +345,6 @@ local function updateStrafe()
         local TargetHRP = TargetPlr.Character and TargetPlr.Character:FindFirstChild("HumanoidRootPart")
         local LocalHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         if TargetHRP and LocalHRP then
-            -- Calculate new CFrame for circling
             Angle = Angle + math.rad(TargetStrafe.Speed)
             local offsetX = TargetStrafe.Radius * math.cos(Angle)
             local offsetZ = TargetStrafe.Radius * math.sin(Angle)
@@ -355,10 +354,8 @@ local function updateStrafe()
     end
 end
 
--- Function to stop strafing (not called automatically)
-local function stopStrafe()
-    setStrafeEnabled(false)
-end
+-- Command Handlers
+local isChained = false
 
 
 
@@ -414,18 +411,16 @@ local function onPlayerChatted(message, player)
             getStop()
         end
 
-		if message:lower() == "!chain" then
-            print("Stopping!")
-            while true do
-    updateStrafe()
-    wait() -- You might want to adjust the frequency of the updates depending on your needs
-end
+	 if message:lower() == "!chain" then
+            print("Starting chaining!")
+            setStrafeEnabled(true)
+            isChained = true
         end
 
-
-			if message:lower() == "!unchain" then
-            print("Stopping!")
-           stopStrafe()
+        if message:lower() == "!unchain" then
+            print("Stopping chaining!")
+            setStrafeEnabled(false)
+            isChained = false
         end
 
 
@@ -560,7 +555,11 @@ for _, player in ipairs(Players:GetPlayers()) do
     end
 end
 
-
+game:GetService("RunService").Heartbeat:Connect(function()
+    if isChained then
+        updateStrafe()
+    end
+end)
 
 
 
