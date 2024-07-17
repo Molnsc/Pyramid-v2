@@ -160,7 +160,7 @@ local function airlock()
 	local a1 = game.Players.LocalPlayer
 local ax = a1.Character
 
-local teleportOffset = Vector3.new(0, 5, 0)  -- Adjust the offset as per your requirement
+local teleportOffset = Vector3.new(0, 15, 0)  -- Adjust the offset as per your requirement
 
 -- Check if the character and HumanoidRootPart exist
 if ax and ax:FindFirstChild("HumanoidRootPart") then
@@ -182,7 +182,7 @@ local function unairlock()
 	local a1 = game.Players.LocalPlayer
 local ax = a1.Character
 
-local teleportOffset = Vector3.new(0, 5, 0)  -- Adjust the offset as per your requirement
+local teleportOffset = Vector3.new(0, 15, 0)  -- Adjust the offset as per your requirement
 
 -- Check if the character and HumanoidRootPart exist
 if ax and ax:FindFirstChild("HumanoidRootPart") then
@@ -325,11 +325,11 @@ local LocalPlayer = Players.LocalPlayer
 local TargetStrafe = {
     Enabled = false,
     Speed = 40,
-    Radius = 3,
-    Height = 1
+    Radius = 6,
+    Height = 3
 }
 
-local TargetUsername = "ExamplePlayer"  -- Replace with the username of the target player
+local TargetUsername = targetPlayerName  
 
 local TargetPlr = Players:FindFirstChild(TargetUsername)
 local Angle = 0
