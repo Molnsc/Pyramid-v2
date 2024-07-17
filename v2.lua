@@ -1,106 +1,93 @@
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local version = "v1.8"
-local targetPlayerName = "Inthermals"
-local commandsList = {
-    "!bring - Bring",
-    "!freeze - Freeze",
-    "!unfreeze - Unfreeze",
-    "!get [playerName] - Start following",
-    "!stopget - Stop following",
-    "!say [message] - Say a message",
-    "!saymyname - Say the host name",
-    "!version - Display the current version",
-    "!airlock - Perform an airlock function",
-    "!unairlock - Undo the airlock function"
-}
+local targetPlayerName = "Inthermals";
+local player = game.Players.LocalPlayer
+local character = player.Character
+local LocalPlr = Players.LocalPlayer
+local SelectedPlayer = ""
+local TargetPlr = nil
+local version = "v1.8";
 
--- Create the GUI
+
+
+
+
+
+
+
+
+-- Ignore GUI
+
+
+
+-- Function to create a shadow for the panel
+
+
+
+
+local player = game.Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
 gui.Name = "PyramidGUI"
-gui.ResetOnSpawn = false  -- Stays on reset
 gui.Parent = player.PlayerGui
 
--- Main panel setup
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 200)
-mainFrame.Position = UDim2.new(0.5, -150, 0.1, 0)
-mainFrame.AnchorPoint = Vector2.new(0.5, 0)
+mainFrame.Size = UDim2.new(0, 600, 0, 450)
+mainFrame.Position = UDim2.new(0.5, -300, 0.5, -225)
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true  -- Allow dragging
-mainFrame.Draggable = true  -- Allow dragging
+mainFrame.BorderSizePixel = 1
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Visible = true  -- Default visibility
 mainFrame.Parent = gui
 
--- Glowing purple border
-local border = Instance.new("ImageLabel")
-border.Size = UDim2.new(1, 8, 1, 8)
-border.Position = UDim2.new(0, -4, 0, -4)
-border.Image = "http://www.roblox.com/asset/?id=7236501397" -- Replace with your purple glowing border image ID
-border.BackgroundTransparency = 1
-border.Parent = mainFrame
+local captionBar = Instance.new("Frame")
+captionBar.Size = UDim2.new(1, 0, 0, 30)
+captionBar.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+captionBar.BorderSizePixel = 1
+captionBar.Parent = mainFrame
 
--- Rounded corner mask
-local cornerMask = Instance.new("UICorner")
-cornerMask.CornerRadius = UDim.new(0, 10)
-cornerMask.Parent = mainFrame
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -30, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Pyramid " .. tostring(version);
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 16
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = captionBar
 
--- Divider line
-local divider = Instance.new("Frame")
-divider.Size = UDim2.new(1, 0, 0, 2)
-divider.Position = UDim2.new(0, 0, 0, 30)
-divider.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue color
-divider.BorderSizePixel = 0
-divider.Parent = mainFrame
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -30, 0, 0)
+closeButton.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextSize = 16
+closeButton.BorderSizePixel = 0
+closeButton.Parent = captionBar
 
--- Glowing purple divider line
-local glowingDivider = Instance.new("Frame")
-glowingDivider.Size = UDim2.new(1, 0, 0, 2)
-glowingDivider.Position = UDim2.new(0, 0, 0, 30)
-glowingDivider.BackgroundColor3 = Color3.fromRGB(148, 0, 211) -- Purple color
-glowingDivider.BorderSizePixel = 0
-glowingDivider.Visible = true  -- Adjust visibility based on interaction
-glowingDivider.Parent = mainFrame
+local header = Instance.new("TextLabel")
+header.Size = UDim2.new(0.3, 0.3, 0, 45)
+header.Position = UDim2.new(0, 0, 0, 35)  -- Adjusted position
+header.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+header.BorderColor3 = Color3.fromRGB(16, 16, 16)  -- Set border color to match background
+header.Text = "Main"
+header.TextColor3 = Color3.new(1, 1, 1)
+header.Font = Enum.Font.SourceSansBold
+header.TextSize = 16  -- Increased text size
+header.Parent = mainFrame
 
--- Target player name text
-local targetPlayerText = Instance.new("TextLabel")
-targetPlayerText.Size = UDim2.new(1, 0, 0, 30)
-targetPlayerText.Position = UDim2.new(0, 0, 0, 0)
-targetPlayerText.BackgroundTransparency = 1
-targetPlayerText.Text = "Host: " .. targetPlayerName  -- Display the target player's name
-targetPlayerText.TextColor3 = Color3.fromRGB(148, 0, 211)  -- Purple color
-targetPlayerText.Font = Enum.Font.SourceSansBold
-targetPlayerText.TextSize = 18
-targetPlayerText.TextXAlignment = Enum.TextXAlignment.Center
-targetPlayerText.Parent = mainFrame
-
--- Commands list text
-local commandsText = Instance.new("TextLabel")
-commandsText.Size = UDim2.new(1, 0, 1, -32)
-commandsText.Position = UDim2.new(0, 0, 0, 32)
-commandsText.BackgroundTransparency = 1
-commandsText.Text = "Commands:\n"
-for _, command in ipairs(commandsList) do
-    local commandName = command:match("!(.-)%s*%-")
-    local commandDesc = command:match("%s*%-%s*(.*)")
-    if commandName and commandDesc then
-        commandsText.Text = commandsText.Text .. "!"
-        local firstWord, restOfDesc = commandDesc:match("(%S+)%s*(.*)")
-        if firstWord then
-            commandsText.Text = commandsText.Text .. firstWord
-            if restOfDesc then
-                commandsText.Text = commandsText.Text .. " " .. restOfDesc
-            end
-        end
-        commandsText.Text = commandsText.Text .. "\n"
-    end
-end
-commandsText.TextColor3 = Color3.new(1, 1, 1) -- White color
-commandsText.Font = Enum.Font.SourceSans
-commandsText.TextSize = 14
-commandsText.TextWrapped = true
-commandsText.Parent = mainFrame
-
+local subText = Instance.new("TextLabel")
+subText.Size = UDim2.new(0.3, 0, 0, 30)  -- Adjusted size
+subText.Position = UDim2.new(0, 0, 0, 90)  -- Adjusted position
+subText.BackgroundTransparency = 1
+subText.Text = "Host: " .. tostring(targetPlayerName);
+subText.TextColor3 = Color3.new(1, 1, 1)
+subText.Font = Enum.Font.SourceSans
+subText.TextSize = 14  -- Increased text size
+subText.Parent = mainFrame
 
 local isVisible = true  -- Keeps track of GUI visibility
 
@@ -331,6 +318,48 @@ end
 
 
 
+-- Assuming you have these defined somewhere in your script
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local TargetStrafe = {
+    Enabled = true, 
+    Speed = 40, -- Reduced speed for better circling
+    Radius = 3, -- Radius of the circle
+    Height = 1
+}
+
+local TargetUsername = "ExamplePlayer"  -- Replace with the username of the target player
+
+local TargetPlr = Players:FindFirstChild(TargetUsername)
+local Angle = 0
+
+-- Function to enable/disable strafing
+local function setStrafeEnabled(enabled)
+    TargetStrafe.Enabled = enabled
+end
+
+-- Function to update strafing
+local function updateStrafe()
+    if TargetStrafe.Enabled and TargetPlr then
+        local TargetHRP = TargetPlr.Character and TargetPlr.Character:FindFirstChild("HumanoidRootPart")
+        local LocalHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if TargetHRP and LocalHRP then
+            -- Calculate new CFrame for circling
+            Angle = Angle + math.rad(TargetStrafe.Speed)
+            local offsetX = TargetStrafe.Radius * math.cos(Angle)
+            local offsetZ = TargetStrafe.Radius * math.sin(Angle)
+            local newCFrame = TargetHRP.CFrame * CFrame.new(offsetX, TargetStrafe.Height, offsetZ)
+            LocalHRP.CFrame = newCFrame
+        end
+    end
+end
+
+-- Function to stop strafing (not called automatically)
+local function stopStrafe()
+    setStrafeEnabled(false)
+end
+
 
 
 
@@ -349,7 +378,7 @@ local function onPlayerChatted(message, player)
         -- Command Yeti v2.7 By Badovh
         
         
-        if message:lower() == "!bring" then
+        if message:lower() == "!tp" then
             print("Bringing Account!")
             tpHOST()
         end
@@ -367,7 +396,7 @@ local function onPlayerChatted(message, player)
         end
 
 
-         if message:sub(1, 5):lower() == "!get " then
+         if message:sub(1, 5):lower() == "!bring " then
             local playerName = message:sub(6) -- Extract the player name from the message
 
             if playerName ~= "" then
@@ -385,34 +414,23 @@ local function onPlayerChatted(message, player)
             getStop()
         end
 
+		if message:lower() == "!chain" then
+            print("Stopping!")
+            while true do
+    updateStrafe()
+    wait() -- You might want to adjust the frequency of the updates depending on your needs
+end
+        end
 
 
-		    if message:sub(1, 5):lower() == "!say " then
-            local textr = message:sub(6) -- Extract the player name from the message
-
-            if textr ~= "" then
-                print("Saying player: " .. textr)
-               game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(textr, "All")
-            else
-                print("Invalid player name")
-            end
+			if message:lower() == "!unchain" then
+            print("Stopping!")
+           stopStrafe()
         end
 
 
 
-		     if message:lower() == "!saymyname" then
-            print("Usage")
-            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(targetPlayerName, "All")
-        end
-
-
-
-		    if message:lower() == "!version" then
-            print("Usage")
-            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(version, "All")
-        end
-
-        if message:lower() == "!getff" then
+		  if message:lower() == "!getff" then
             print("Usage")
             -- Game: HoodModded
 -- Developer: Stella
@@ -456,6 +474,32 @@ logCFrame()
 -- Optional: Automatically kill the player on spawn
 killSelf()
 
+        end
+
+
+		    if message:sub(1, 5):lower() == "!say " then
+            local textr = message:sub(6) -- Extract the player name from the message
+
+            if textr ~= "" then
+                print("Saying player: " .. textr)
+               game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(textr, "All")
+            else
+                print("Invalid player name")
+            end
+        end
+
+
+
+		     if message:lower() == "!saymyname" then
+            print("Usage")
+            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(targetPlayerName, "All")
+        end
+
+
+
+		    if message:lower() == "!version" then
+            print("Usage")
+            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(version, "All")
         end
 
 
